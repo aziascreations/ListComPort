@@ -1,0 +1,7 @@
+// This is added before all the MessageTable
+// You'll want to define your constants here, just in case.
+
+#define LANG_ENGLISH 0x09
+#define LANG_FRENCH  0x0C
+#define SUBLANG_NEUTRAL 0x00
+

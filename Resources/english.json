@@ -1,0 +1,38 @@
+{
+	"_lang": "LANG_ENGLISH",
+	"_sublang": "SUBLANG_NEUTRAL",
+	
+	"": "################################################################################",
+	
+	"1000": [
+		"lscom.exe [-a|--show-all] [-d|--show-device] [-D <str>|--divider <str>]",
+		"          [-f|--show-friendly] [-h|--help] [-n|--show-name-raw] [-P|--no-pretty]",
+		"          [-s|--sort] [-S|--sort-reverse] [-t|--tab-padding] [-v|--version] [-V|--version-only]",
+		"",
+		"Options:",
+		"  -a, --show-all             Display the complete port's name (Equal to '-dfn')",
+		"  -d, --show-device          Displays the port's device name",
+		"  -D <str>, --divider <str>  Uses the given string or char as a separator (Can be empty string !)",
+		"  -f, --show-friendly        Displays the port's friendly name",
+		"  /?, -h, --help                 Display this help text",
+		"  -n, --show-name-raw        Displays the port's raw name (See remarks section)",
+		"  -P, --no-pretty            Disables the pretty printing format (Equal to -D " ")",
+		"  -s, --sort                 Sorts the port based on their raw names in an ascending order",
+		"  -S, --sort-reverse         Sorts the port based on their raw names in a descending order",
+		"  -t, --tab-padding          Use tabs for padding between the types of names (Overrides '-D')",
+		"  -v, --version              Prints the program's version number"
+	],
+	"1001": [
+		"",
+		"Remarks:",
+		"  This is only a template project !"
+	],
+	
+	"2000": "\\nPress any key to continue...",
+	
+	"3010": "I only exist in english",
+	
+	"5000": "More than one input file was given !",
+	"5001": "Unknown argument:",
+	"5002": "No input file given !"
+}

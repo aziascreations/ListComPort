@@ -1,0 +1,8 @@
+{
+	"rc_prefix": "./_langs_prefix.rc",
+	"rc_suffix": "./_langs_suffix.rc",
+	"langs": [
+		"./english.json",
+		"./french.json"
+	]
+}

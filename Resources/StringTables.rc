@@ -1,0 +1,32 @@
+// This is added before all the MessageTable
+// You'll want to define your constants here, just in case.
+
+#define LANG_ENGLISH 0x09
+#define LANG_FRENCH  0x0C
+#define SUBLANG_NEUTRAL 0x00
+
+LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
+STRINGTABLE
+BEGIN
+  1000, "MyApp.exe [/?]\n\nOptions:\n  /?  Prints this help text"
+  1001, "\nRemarks:\n  This is only a template project !"
+  2000, "\nPress any key to continue..."
+  3010, "I only exist in english"
+  5000, "More than one input file was given !"
+  5001, "Unknown argument:"
+  5002, "No input file given !"
+END
+
+LANGUAGE LANG_FRENCH, SUBLANG_NEUTRAL
+STRINGTABLE
+BEGIN
+  1000, "MyApp.exe [/?]\n\nOptions:\n  /?  Affiche ce texte d'aide"
+  1001, "\nRemarques:\n  Ceci est un projet modèle !"
+  2000, "\nAppuyez sur une touche pour continuer..."
+  3020, "J'existe seulement en français"
+  5000, "Vous avez renseigné plus qu'un seul fichier !"
+  5001, "Option inconnue:"
+  5002, "Aucun fichier n'a été renseigné !"
+END
+
+// This is added after all the MessageTable
