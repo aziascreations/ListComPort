@@ -23,9 +23,10 @@ Enumeration LSCOM_ErrorCodes
 	#LSCOM_ErrorCode_NoRequiredWinApiFunction
 	
 	; Internal argument parser errors (10-19)
-	#LSCOM_ErrorCode_ArgumentParsingFailure = 10
-	#LSCOM_ErrorCode_ArgumentDefinitionFailure
-	#LSCOM_ErrorCode_ArgumentInitFailure
+	#LSCOM_ErrorCode_Legacy1 = 10
+	#LSCOM_ErrorCode_Legacy2
+	#LSCOM_ErrorCode_Legacy3
+	#LSCOM_ErrorCode_UnknownArgument = 13
 	
 	; External argument errors (20-29)
 	#LSCOM_ErrorCode_NoPaddingValue = 20

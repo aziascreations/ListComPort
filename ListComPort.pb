@@ -1,261 +1,68 @@
-﻿;{
-; * ListComPort.pb
-; Version: 2.1.0-tmp
-; Author: Herwin Bozet
+﻿;{- Code Header
+; ==- Basic Info -================================
+;     Name: ListComPort.pb
+;  Version: 4.0.0
+;   Author: Herwin Bozet (NibblePoker)
 ;
-; License: Unlicense (Public Domain)
+; ==- Compatibility -=============================
+;  Compiler version:
+;    * PureBasic 5.73 LTS (x86/x64)
+;    * PureBasic 6.0 LTS (x64)
+;    * PureBasic 6.0 LTS - C Backend (x64)
+; 
+; ==- Links & License -===========================
+;  License: CC0 1.0 Universal (Public Domain)
+;  GitHub: https://github.com/aziascreations/ListComPort
 ;}
 
+
+; ------------------------------------------------------------------------------
 ;- Notes
 
 ; No notes currently available.
 
 
-;- Compiler Directives
+; ------------------------------------------------------------------------------
+;- Compiler directive
 
 EnableExplicit
 
 CompilerIf #PB_Compiler_ExecutableFormat <> #PB_Compiler_Console
-	CompilerError("this program need to be compiled as a console application !")
+    CompilerError("this program needs to be compiled as a console application !")
+CompilerEndIf
+
+
+CompilerIf #PB_Compiler_OS <> #PB_OS_Windows
+    CompilerError "This program can only be compiled for Windows !"
 CompilerEndIf
 
 XIncludeFile "./Includes/ListComPortLocales.pbi"
 XIncludeFile "./Includes/ListComPortErrorCodes.pbi"
 
-XIncludeFile "./Includes/PB-Arguments/Arguments.pbi"
+XIncludeFile "./Includes/ComPortHelper.pbi"
 
-CompilerIf #PB_Compiler_OS = #PB_OS_Windows
-	XIncludeFile "./Includes/ComPortHelper.pbi"
-CompilerElse
-	CompilerError "Non-windows platforms are not supported !"
-CompilerEndIf
+XIncludeFile "./Includes/PB-Win32-GetConsoleProcessList/Includes/Win32_GetConsoleProcessList.pbi"
 
 
+; ------------------------------------------------------------------------------
 ;- Constants
 
-#Version$ = "2.1.0"
+#Version$ = "4.0.0"
 
 
-;- Code
 
-;-> Setup
-
-If Not OpenConsole("lscom")
-	MessageBeep_(#MB_ICONERROR)
-	MessageRequester(#LSCOM_Locale_Error_MBTitle$, #LSCOM_Locale_Error_MBText$,
-	                 #PB_MessageRequester_Ok | #PB_MessageRequester_Error)
-	End #LSCOM_ErrorCode_NoTerminal
-EndIf
-
-
-;-> Preparing globals
-
+; ------------------------------------------------------------------------------
+;- Globals
 Global ExitCode.i = #LSCOM_ErrorCode_NoError
 
-Global ShouldPrintRawNames.b = #True
+; Arguments
+Global ShouldPrintRawNames.b = #False
 Global ShouldPrintDeviceNames.b = #False
 Global ShouldPrintFriendlyNames.b = #False
 Global SortingOrder.b = ComPortHelper::#Sort_Order_None
 Global PaddingString$ = #Null$
 
-
-;-> Preparing argument parser
-
-Procedure VerifyOption(*Option, OptionName$, *HasRegisteredArgumentsCorrectly)
-	If Not Arguments::RegisterOption(*Option)
-		ConsoleError(ReplaceString(#LSCOM_Locale_Error_ArgumentDefinitionFailure$, "%0", OptionName$))
-		Arguments::FreeOption(*Option)
-		PokeB(*HasRegisteredArgumentsCorrectly, #False)
-	EndIf
-EndProcedure
-
-If Arguments::Init()
-	Define HasRegisteredArgumentsCorrectly.b = #True
-	
-	Define *NameAllOption.Arguments::Option = Arguments::CreateOption('a', "show-all", #LSCOM_Locale_ArgumentDesc_ShowAll$)
-	Define *NameDeviceOption.Arguments::Option = Arguments::CreateOption('d', "show-device", #LSCOM_Locale_ArgumentDesc_ShowDevice$)
-	Define *DividerCharOption.Arguments::Option = Arguments::CreateOption('D', "divider", #LSCOM_Locale_ArgumentDesc_Divider$, Arguments::#Option_HasValue)
-	Define *NameFriendlyOption.Arguments::Option = Arguments::CreateOption('f', "show-friendly", #LSCOM_Locale_ArgumentDesc_ShowFriendly$)
-	Define *HelpOption.Arguments::Option = Arguments::CreateOption('h', "help", #LSCOM_Locale_ArgumentDesc_Help$)
-	Define *NameRawOption.Arguments::Option = Arguments::CreateOption('n', "show-name-raw", #LSCOM_Locale_ArgumentDesc_ShowRaw$)
-	Define *NoPrettyAscOption.Arguments::Option = Arguments::CreateOption('P', "no-pretty", #LSCOM_Locale_ArgumentDesc_NoPretty$)
-	Define *SortAscOption.Arguments::Option = Arguments::CreateOption('s', "sort", #LSCOM_Locale_ArgumentDesc_Sort$)
-	Define *SortDescOption.Arguments::Option = Arguments::CreateOption('S', "sort-reverse", #LSCOM_Locale_ArgumentDesc_SortReverse$)
-	Define *NameTabPaddingOption.Arguments::Option = Arguments::CreateOption('t', "tab-padding", #LSCOM_Locale_ArgumentDesc_TabDivider$)
-	Define *VersionOption.Arguments::Option = Arguments::CreateOption('v', "version", #LSCOM_Locale_ArgumentDesc_Version$)
-	Define *VersionOnlyOption.Arguments::Option = Arguments::CreateOption('V', "version-only", #LSCOM_Locale_ArgumentDesc_VersionOnly$)
-	
-	VerifyOption(*NameAllOption, "*NameAllOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*NameDeviceOption, "*NameDeviceOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*DividerCharOption, "*DividerCharOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*NameFriendlyOption, "*NameFriendlyOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*HelpOption, "*HelpOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*NameRawOption, "*NameRawOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*NoPrettyAscOption, "*NoPrettyAscOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*SortAscOption, "*SortAscOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*SortDescOption, "*SortDescOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*NameTabPaddingOption, "*NameTabPaddingOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*VersionOption, "*VersionOption", @HasRegisteredArgumentsCorrectly)
-	VerifyOption(*VersionOnlyOption, "*VersionOnlyOption", @HasRegisteredArgumentsCorrectly)
-	
-	If HasRegisteredArgumentsCorrectly
-		If Not Arguments::ParseArguments(0, CountProgramParameters())
-			If *HelpOption\WasUsed
-				PrintN("lscom.exe [-a|--show-all] [-d|--show-device] [-D <str>|--divider <str>] [-f|--show-friendly]")
-				PrintN("          [-h|--help] [-n|--show-name-raw] [-P|--no-pretty] [-s|--sort] [-S|--sort-reverse]")
-				PrintN("          [-t|--tab-padding] [-v|--version] [-V|--version-only]")
-				PrintN("")
-				
-				PrintN(#LSCOM_Locale_HelpSection_LaunchArgs$+":")
-				PrintN(" -a, --show-all             "+#LSCOM_Locale_ArgumentDesc_ShowAll$)
-				PrintN(" -d, --show-device          "+#LSCOM_Locale_ArgumentDesc_ShowDevice$)
-				PrintN(" -D <str>, --divider <str>  "+#LSCOM_Locale_ArgumentDesc_Divider$)
-				PrintN(" -f, --show-friendly        "+#LSCOM_Locale_ArgumentDesc_ShowFriendly$)
-				PrintN(" -h, --help                 "+#LSCOM_Locale_ArgumentDesc_Help$)
-				PrintN(" -n, --show-name-raw        "+#LSCOM_Locale_ArgumentDesc_ShowRaw$)
-				PrintN(" -P, --no-pretty            "+#LSCOM_Locale_ArgumentDesc_NoPretty$)
-				PrintN(" -s, --sort                 "+#LSCOM_Locale_ArgumentDesc_Sort$)
-				PrintN(" -S, --sort-reverse         "+#LSCOM_Locale_ArgumentDesc_SortReverse$)
-				PrintN(" -t, --tab-padding          "+#LSCOM_Locale_ArgumentDesc_TabDivider$)
-				PrintN(" -v, --version              "+#LSCOM_Locale_ArgumentDesc_Version$)
-				PrintN(" -V, --version-only         "+#LSCOM_Locale_ArgumentDesc_VersionOnly$)
-				PrintN("")
-				
-				PrintN(#LSCOM_Locale_HelpSection_Remarks$+":")
-				PrintN(" * "+#LSCOM_Locale_Remark_NamePartsAndRawDefault$)
-				PrintN(" * "+#LSCOM_Locale_Remark_NoPrettyPrinting$)
-				PrintN(" * "+#LSCOM_Locale_Remark_DefaultSorting$)
-				PrintN(" * "+#LSCOM_Locale_Remark_NameRaw$)
-				PrintN(" * "+#LSCOM_Locale_Remark_NameDevice$)
-				PrintN(" * "+#LSCOM_Locale_Remark_NameFriendly$)
-				PrintN(" * "+#LSCOM_Locale_Remark_ErrorsFatal$)
-				PrintN(" * "+#LSCOM_Locale_Remark_ErrorsNonFatal$)
-				PrintN("")
-				
-				PrintN(#LSCOM_Locale_HelpSection_Formatting$+":")
-				PrintN(" *┬> "+#LSCOM_Locale_Expression_NoArguments$+":")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"}"+#TAB$+"=> COM1")
-				PrintN(" *┬> '-d' "+#LSCOM_Locale_Expression_LowerCase_Or$+" '-f' ")
-				PrintN("  ├──> ${"+#LSCOM_Locale_Expression_DeviceName$+"}"+#TAB$+"=> \Device\Serial1")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_FriendlyName$+"}"+#TAB$+"=> Communications Port")
-				PrintN(" *┬> '-d' "+#LSCOM_Locale_Expression_LowerCase_And$+" '-f' ")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_FriendlyName$+"} [${"+#LSCOM_Locale_Expression_DeviceName$+"}]"+#TAB$+"=> Communications Port [\Device\Serial1]")
-				PrintN(" *┬> '-n' "+#LSCOM_Locale_Expression_LowerCase_And$+" '-d'")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"} [$DeviceName]"+#TAB$+"=> COM1 [\Device\Serial1]")
-				PrintN(" *┬> '-n' "+#LSCOM_Locale_Expression_LowerCase_And$+" '-f'")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"} - ${"+#LSCOM_Locale_Expression_FriendlyName$+"}"+#TAB$+"=> COM1 - Communications Port")
-				PrintN(" *┬> '-ndf' "+#LSCOM_Locale_Expression_LowerCase_Or$+" '-a' ")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"} - ${"+#LSCOM_Locale_Expression_FriendlyName$+"} [${"+#LSCOM_Locale_Expression_DeviceName$+"}]"+
-				       #TAB$+"=> COM1 - Communications Port [\Device\Serial1]")
-				PrintN(" *┬> '-ndfp' "+#LSCOM_Locale_Expression_LowerCase_Or$+" '-ap' ")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"} ${"+#LSCOM_Locale_Expression_FriendlyName$+"} ${"+#LSCOM_Locale_Expression_DeviceName$+"}"+
-				       #TAB$+"=> COM1 Communications Port \Device\Serial1")
-				PrintN(" *┬> '-ndfD "+#DQUOTE$+";"+#DQUOTE$+"' "+#LSCOM_Locale_Expression_LowerCase_Or$+" '-aD "+#DQUOTE$+";"+#DQUOTE$+"' ")
-				PrintN("  └──> ${"+#LSCOM_Locale_Expression_RawName$+"};${"+#LSCOM_Locale_Expression_FriendlyName$+"};${"+#LSCOM_Locale_Expression_DeviceName$+"}"+
-				       #TAB$+"=> COM1;Communications Port;\Device\Serial1")
-				PrintN("")
-				
-				PrintN(#LSCOM_Locale_HelpSection_ErrorCodes$+":")
-				PrintN(#LSCOM_Locale_HelpSectionFormatted_ErrorCodes_Fatal$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_NoTerminal)+" - "+#LSCOM_Locale_ErrorExplaination_NoTerminal$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_NoRequiredWinApiFunction)+" - "+#LSCOM_Locale_ErrorExplaination_WinApiMissingFunction$)
-				
-				PrintN(#LSCOM_Locale_HelpSectionFormatted_ErrorCodes_Internal$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_ArgumentParsingFailure)+" - "+#LSCOM_Locale_ErrorExplaination_ArgumentParsingFailure$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_ArgumentDefinitionFailure)+" - "+#LSCOM_Locale_ErrorExplaination_ArgumentDefinitionFailure$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_ArgumentInitFailure)+" - "+#LSCOM_Locale_ErrorExplaination_ArgumentInitFailure$)
-				
-				PrintN(#LSCOM_Locale_HelpSectionFormatted_ErrorCodes_External$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_NoPaddingValue)+" - "+#LSCOM_Locale_ErrorExplaination_NoPaddingValue$)
-				
-				PrintN(#LSCOM_Locale_HelpSectionFormatted_ErrorCodes_Application$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_NoFriendlyNames)+" - "+#LSCOM_Locale_ErrorExplaination_NoFriendlyNames$)
-				PrintN("   * "+Str(#LSCOM_ErrorCode_NoComPorts)+" - "+#LSCOM_Locale_ErrorExplaination_NoComPorts$)
-				
-				End ExitCode
-			EndIf
-			
-			If *VersionOnlyOption\WasUsed
-				Print(#Version$)
-				End ExitCode
-			EndIf
-			
-			If *VersionOption\WasUsed
-				PrintN("PB-ListComPort (lscom) v"+#Version$)
-				PrintN("  Arguments v"+Arguments::#Version$)
-				PrintN("  ComPortHelper v"+ComPortHelper::#Version$)
-				PrintN("  RegistryHelper v"+RegistryHelper::#Version$)
-				PrintN("  WinTypes v"+WinTypes::#Version$)
-				PrintN("")
-				PrintN(#LSCOM_Locale_Expression_Language$+": "+#LSCOM_Locale_LangName$+" ("+#PBListComPortLang+")")
-				PrintN("GitHub: https://github.com/aziascreations/PB-ListComPort")
-				End ExitCode
-			EndIf
-			
-			If *NameDeviceOption\WasUsed
-				ShouldPrintRawNames = #False
-				ShouldPrintDeviceNames = #True
-			EndIf
-			
-			If *NameFriendlyOption\WasUsed
-				ShouldPrintRawNames = #False
-				ShouldPrintFriendlyNames = #True
-			EndIf
-			
-			If *NameRawOption\WasUsed
-				ShouldPrintRawNames = #True
-			EndIf
-			
-			If *NameAllOption\WasUsed
-				ShouldPrintDeviceNames = #True
-				ShouldPrintFriendlyNames = #True
-				ShouldPrintRawNames = #True
-			EndIf
-			
-			If *SortAscOption\WasUsed
-				SortingOrder = ComPortHelper::#Sort_Order_Ascending
-			EndIf
-			
-			If *SortDescOption\WasUsed
-				SortingOrder = ComPortHelper::#Sort_Order_Descending
-			EndIf
-			
-			If *NoPrettyAscOption\WasUsed
-				PaddingString$ = " "
-			EndIf
-			
-			If *DividerCharOption\WasUsed
-				If ListSize(*DividerCharOption\Arguments()) = 0
-					ConsoleError(#LSCOM_Locale_ErrorExplaination_NoPaddingValue$)
-					ExitCode = #LSCOM_ErrorCode_NoPaddingValue
-				Else
-					FirstElement(*DividerCharOption\Arguments())
-					PaddingString$ = *DividerCharOption\Arguments()
-				EndIf
-			EndIf
-			
-			If *NameTabPaddingOption\WasUsed
-				PaddingString$ = #TAB$
-			EndIf
-		Else
-			ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentParsingFailure$)
-			ExitCode = #LSCOM_ErrorCode_ArgumentParsingFailure
-		EndIf
-	Else
-		ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentDefinitionFailure$)
-		ExitCode = #LSCOM_ErrorCode_ArgumentDefinitionFailure
-	EndIf
-	
-	; Clearing the memory for the argument parser...
-	Arguments::Finish()
-Else
-	ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentInitFailure$)
-	ExitCode = #LSCOM_ErrorCode_ArgumentInitFailure
-EndIf
-
-
-;-> Listing ports
-
+; Main loop globals
 Global IsDoingFine.b = #True
 Global RawToFriendlySeparator$ = " - "
 Global UseDeviceBrackets.b = #True
@@ -266,78 +73,339 @@ Global NewList ComPortRawNames.s()
 ; May not be used depending on the options used.
 Global NewMap ComPortFriendlyNames.s()
 
-If PaddingString$ = #Null$
-	; No custom padding char was used
-	PaddingString$ = " "
-Else
-	; Custom padding char was used
-	RawToFriendlySeparator$ = PaddingString$
-	UseDeviceBrackets = #False
+
+
+; ------------------------------------------------------------------------------
+;- Procedures
+Procedure PrintUsageText(PrintFull.b = #False)
+    Define UsageText$
+    
+;     Restore UsageText
+;     
+;     Read.s UsageText$
+;     PrintN(UsageText$)
+;     
+;     If PrintFull
+;         Read.s UsageText$
+;         PrintN(UsageText$)
+;     EndIf
+EndProcedure
+
+; Checks if the current process was started via another process (CMD), or not.
+Procedure.b IsProgramRunDirectly()
+    ; Will act as a DWORD[2]
+    Define ProcessListBuffer.q
+    ProcedureReturn Bool(GetConsoleProcessList_(@ProcessListBuffer, 2) <= 1)
+EndProcedure
+
+Procedure.s LoadString(StringId.i, MaxLength.i = 4098)
+    ; Resource strings are limited to a maximum of 4097 characters
+    ; See: https://learn.microsoft.com/en-us/windows/win32/menurc/stringtable-resource
+    ; Source: https://github.com/aziascreations/PB-Win32-Internationalization
+    If MaxLength > 4098
+        DebuggerWarning("LoadString was given a MaxLength bigger than 4098 !")
+        MaxLength = 4098
+    EndIf
+    
+    Protected *Buffer = AllocateMemory((MaxLength + 1) * SizeOf(Character))
+    Protected Result$ = #Null$
+    
+    If *Buffer
+        If LoadString_(GetModuleHandle_(#Null), StringId, *Buffer, MaxLength)
+            Result$ = PeekS(*Buffer, MaxLength, #PB_Unicode)
+        Else
+            ; See: https://learn.microsoft.com/en-us/windows/win32/debug/system-error-codes
+            DebuggerWarning("LoadString failed for " + Str(StringId) + " - Error " + Str(GetLastError_()))
+        EndIf
+        FreeMemory(*Buffer)
+    Else
+        DebuggerWarning("LoadString failed to allocate memory for its internal buffer !")
+    EndIf
+    
+    ProcedureReturn Result$
+EndProcedure
+
+
+
+; ------------------------------------------------------------------------------
+;- App's code
+
+;-> Setup
+
+If Not OpenConsole("lscom")
+    End #LSCOM_ErrorCode_NoTerminal
 EndIf
 
 
-If ComPortHelper::GetComPortAndDeviceNameLists(ComPortDeviceNames(), ComPortRawNames()) <> -1
-	If ShouldPrintFriendlyNames
-		If ComPortHelper::GetComPortMappedFriendlyName(ComPortRawNames(), ComPortFriendlyNames(), #True) = -1
-			ConsoleError(#LSCOM_Locale_ErrorExplaination_NoFriendlyNames$)
-			IsDoingFine = #False
-			ExitCode = #LSCOM_ErrorCode_NoFriendlyNames
-		EndIf
-	EndIf
+;-> Parsing launch arguments
+; I dropped the original "PB-Arguments" include to reduce runtime memory allocations.
+
+Define IParam.i
+For IParam = 0 To CountProgramParameters()
+    Define CurrentParam$ = ProgramParameter(IParam)
+    
+    If Len(CurrentParam$) = 0
+        Continue  
+    EndIf
+    
+    If (PeekC(@CurrentParam$) <> '/' And PeekC(@CurrentParam$) <> '-') Or Len(CurrentParam$) <= 0
+        ConsoleError("Unknown argument: '" + CurrentParam$ + "'")
+        ExitCode = #LSCOM_ErrorCode_UnknownArgument
+        PrintUsageText()
+        Goto LSCOM_End
+    EndIf
+    
+    If PeekC(@CurrentParam$) = '/' Or Left(CurrentParam$, 2) = "--"
+        CurrentParam$ = UCase(LTrim(LTrim(CurrentParam$, "/"), "-"))
+        
+        Select CurrentParam$
+            Case "?", "HELP"
+                PrintUsageText(#True)
+                Goto LSCOM_End
+                
+            Case "A", "SHOW-ALL"
+                ShouldPrintDeviceNames = #True
+                ShouldPrintFriendlyNames = #True
+                ShouldPrintRawNames = #True
+                
+            Case "D", "SHOW-DEVICE"
+                ShouldPrintDeviceNames = #True
+                
+            Case "F", "SHOW-FRIENDLY"
+                ShouldPrintFriendlyNames = #True
+                
+            Case "N", "SHOW-NAME"
+                ShouldPrintRawNames = #True
+                
+            Case "P", "NO-PRETTY"
+                PaddingString$ = " "
+                
+            Case "DIVIDER"
+                SortingOrder = ComPortHelper::#Sort_Order_Ascending
+                
+            Case "T", "TAB-PADDING"
+                PaddingString$ = #TAB$
+                
+            Case "S", "SORT"
+                SortingOrder = ComPortHelper::#Sort_Order_Ascending
+                
+            Case "SR", "SORT-REVERSE"
+                SortingOrder = ComPortHelper::#Sort_Order_Descending
+                
+            Case "V", "VERSION"
+                PrintN(#Version$)
+                Goto LSCOM_End
+                
+            Default
+                ConsoleError("Unknown argument: '" + CurrentParam$ + "'")
+                ExitCode = #LSCOM_ErrorCode_UnknownArgument
+                PrintUsageText()
+                Goto LSCOM_End
+        EndSelect
+        
+    ElseIf PeekC(@CurrentParam$) = '-' And Len(CurrentParam$) > 1
+        Define IParamMaxSubIndex = Len(CurrentParam$) - 1
+        Define IParamSubIndex = 1
+        
+        Select PeekC(@CurrentParam$ + IParamSubIndex)
+            Case 'h'
+                PrintUsageText(#True)
+                Goto LSCOM_End
+            Case 'a'
+                ShouldPrintDeviceNames = #True
+                ShouldPrintFriendlyNames = #True
+                ShouldPrintRawNames = #True
+            Case 'd'
+                ShouldPrintDeviceNames = #True
+            Case 'f'
+                ShouldPrintFriendlyNames = #True
+            Case 'n'
+                ShouldPrintFriendlyNames = #True
+            Case 'P'
+                PaddingString$ = " "
+            Case 'd'
+            Case 't'
+                PaddingString$ = #TAB$
+            Case 's'
+                SortingOrder = ComPortHelper::#Sort_Order_Ascending
+            Case 'S'
+                SortingOrder = ComPortHelper::#Sort_Order_Descending
+            Case 'v'
+                PrintN(#Version$)
+                Goto LSCOM_End
+            Default
+                ConsoleError("Unknown argument: '" + CurrentParam$ + "'")
+                ExitCode = #LSCOM_ErrorCode_UnknownArgument
+                PrintUsageText()
+                Goto LSCOM_End
+        EndSelect
+        
+    Else
+        ConsoleError("Unknown argument: '" + CurrentParam$ + "'")
+        ExitCode = #LSCOM_ErrorCode_UnknownArgument
+        PrintUsageText()
+        Goto LSCOM_End
+    EndIf
+    
+    
+    
+    
+    ; 			
+    ; 			If *NoPrettyAscOption\WasUsed
+    ; 				PaddingString$ = " "
+    ; 			EndIf
+    ; 			
+    ; 			If *DividerCharOption\WasUsed
+    ; 				If ListSize(*DividerCharOption\Arguments()) = 0
+    ; 					ConsoleError(#LSCOM_Locale_ErrorExplaination_NoPaddingValue$)
+    ; 					ExitCode = #LSCOM_ErrorCode_NoPaddingValue
+    ; 				Else
+    ; 					FirstElement(*DividerCharOption\Arguments())
+    ; 					PaddingString$ = *DividerCharOption\Arguments()
+    ; 				EndIf
+    ; 			EndIf
+    ; 			
+    ; 			If *NameTabPaddingOption\WasUsed
+    ; 				PaddingString$ = #TAB$
+    ; 			EndIf
+    
+    LSCOM_ArgsLoop_End:
+Next
+
+
+; Procedure VerifyOption(*Option, OptionName$, *HasRegisteredArgumentsCorrectly)
+;     If Not Arguments::RegisterOption(*Option)
+;         ConsoleError(ReplaceString(#LSCOM_Locale_Error_ArgumentDefinitionFailure$, "%0", OptionName$))
+;         Arguments::FreeOption(*Option)
+;         PokeB(*HasRegisteredArgumentsCorrectly, #False)
+;     EndIf
+; EndProcedure
+
+; If Arguments::Init()
+;     Define HasRegisteredArgumentsCorrectly.b = #True
+;     ;{
+;     
+;     If HasRegisteredArgumentsCorrectly
+;         If Not Arguments::ParseArguments(0, CountProgramParameters())
+;            
+;             If *DividerCharOption\WasUsed
+;                 If ListSize(*DividerCharOption\Arguments()) = 0
+;                     ConsoleError(#LSCOM_Locale_ErrorExplaination_NoPaddingValue$)
+;                     ExitCode = #LSCOM_ErrorCode_NoPaddingValue
+;                 Else
+;                     FirstElement(*DividerCharOption\Arguments())
+;                     PaddingString$ = *DividerCharOption\Arguments()
+;                 EndIf
+;             EndIf
+;             
+;             If *NameTabPaddingOption\WasUsed
+;                 PaddingString$ = #TAB$
+;             EndIf
+;         Else
+;             ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentParsingFailure$)
+;             ExitCode = #LSCOM_ErrorCode_ArgumentParsingFailure
+;         EndIf
+;     Else
+;         ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentDefinitionFailure$)
+;         ExitCode = #LSCOM_ErrorCode_ArgumentDefinitionFailure
+;     EndIf
+;     
+;     ; Clearing the memory for the argument parser...
+;     Arguments::Finish()
+; Else
+;     ConsoleError(#LSCOM_Locale_ErrorExplaination_ArgumentInitFailure$)
+;     ExitCode = #LSCOM_ErrorCode_ArgumentInitFailure
+; EndIf
+
+
+;-> Post-processing launch arguments
+
+If  ShouldPrintRawNames = #False And ShouldPrintDeviceNames.b = #False And ShouldPrintFriendlyNames.b = #False
+    ShouldPrintRawNames = #True
+EndIf
+
+If PaddingString$ = #Null$
+    ; No custom padding char was used
+    PaddingString$ = " "
 Else
-	ConsoleError(#LSCOM_Locale_ErrorExplaination_NoComPorts$)
-	IsDoingFine = #False
-	ExitCode = #LSCOM_ErrorCode_NoComPorts
+    ; Custom padding char was used
+    RawToFriendlySeparator$ = PaddingString$
+    UseDeviceBrackets = #False
+EndIf
+
+
+;-> Listing ports
+
+If ComPortHelper::GetComPortAndDeviceNameLists(ComPortDeviceNames(), ComPortRawNames()) <> -1
+    If ShouldPrintFriendlyNames
+        If ComPortHelper::GetComPortMappedFriendlyName(ComPortRawNames(), ComPortFriendlyNames(), #True) = -1
+            ConsoleError(#LSCOM_Locale_ErrorExplaination_NoFriendlyNames$)
+            IsDoingFine = #False
+            ExitCode = #LSCOM_ErrorCode_NoFriendlyNames
+        EndIf
+    EndIf
+Else
+    ConsoleError(#LSCOM_Locale_ErrorExplaination_NoComPorts$)
+    IsDoingFine = #False
+    ExitCode = #LSCOM_ErrorCode_NoComPorts
 EndIf
 
 
 If IsDoingFine
-	ComPortHelper::SortDeviceAndRawNameLists(ComPortDeviceNames(), ComPortRawNames(), SortingOrder)
-	
-	ForEach ComPortRawNames()
-		If ShouldPrintRawNames
-			Print(ComPortRawNames())
-			
-			If ShouldPrintFriendlyNames
-				Print(RawToFriendlySeparator$+ComPortFriendlyNames(ComPortRawNames()))
-			EndIf
-			
-			If ShouldPrintDeviceNames
-				SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
-				
-				If UseDeviceBrackets
-					PrintN(PaddingString$+"["+ComPortDeviceNames()+"]")
-				Else
-					PrintN(PaddingString$+ComPortDeviceNames())
-				EndIf
-			Else
-				Print(#CRLF$)
-			EndIf
-		Else
-			If ShouldPrintFriendlyNames
-				Print(ComPortFriendlyNames(ComPortRawNames()))
-				If ShouldPrintDeviceNames
-					SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
-					
-					If UseDeviceBrackets
-						PrintN(PaddingString$+"["+ComPortDeviceNames()+"]")
-					Else
-						PrintN(PaddingString$+ComPortDeviceNames())
-					EndIf
-				Else
-					Print(#CRLF$)
-				EndIf
-			Else
-				SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
-				PrintN(ComPortDeviceNames())
-			EndIf
-		EndIf
-	Next
+    ComPortHelper::SortDeviceAndRawNameLists(ComPortDeviceNames(), ComPortRawNames(), SortingOrder)
+    
+    ForEach ComPortRawNames()
+        If ShouldPrintRawNames
+            Print(ComPortRawNames())
+            
+            If ShouldPrintFriendlyNames
+                Print(RawToFriendlySeparator$+ComPortFriendlyNames(ComPortRawNames()))
+            EndIf
+            
+            If ShouldPrintDeviceNames
+                SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
+                
+                If UseDeviceBrackets
+                    PrintN(PaddingString$+"["+ComPortDeviceNames()+"]")
+                Else
+                    PrintN(PaddingString$+ComPortDeviceNames())
+                EndIf
+            Else
+                Print(#CRLF$)
+            EndIf
+        Else
+            If ShouldPrintFriendlyNames
+                Print(ComPortFriendlyNames(ComPortRawNames()))
+                If ShouldPrintDeviceNames
+                    SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
+                    
+                    If UseDeviceBrackets
+                        PrintN(PaddingString$+"["+ComPortDeviceNames()+"]")
+                    Else
+                        PrintN(PaddingString$+ComPortDeviceNames())
+                    EndIf
+                Else
+                    Print(#CRLF$)
+                EndIf
+            Else
+                SelectElement(ComPortDeviceNames(), ListIndex(ComPortRawNames()))
+                PrintN(ComPortDeviceNames())
+            EndIf
+        EndIf
+    Next
 EndIf
 
-; Cleaning...
+
+
+;-> Cleanup and end
+LSCOM_End:
 FreeMap(ComPortFriendlyNames())
 FreeList(ComPortRawNames())
 FreeList(ComPortDeviceNames())
+
+If IsProgramRunDirectly()
+    PrintN("Press enter to exit...")
+    Input()
+EndIf
 
 End ExitCode
