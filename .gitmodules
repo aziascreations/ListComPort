@@ -1,3 +1,6 @@
 [submodule "Includes/PB-Arguments"]
 	path = Includes/PB-Arguments
 	url = https://github.com/aziascreations/PB-Arguments
+[submodule "Includes/PB-Win32-GetConsoleProcessList"]
+	path = Includes/PB-Win32-GetConsoleProcessList
+	url = https://github.com/aziascreations/PB-Win32-GetConsoleProcessList.git
