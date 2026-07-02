@@ -8,25 +8,37 @@
 LANGUAGE LANG_ENGLISH, SUBLANG_NEUTRAL
 STRINGTABLE
 BEGIN
-  1000, "MyApp.exe [/?]\n\nOptions:\n  /?  Prints this help text"
-  1001, "\nRemarks:\n  This is only a template project !"
+  1000, "lscom.exe [-h|--help][-a|--show-all] [-d|--show-device]\n          [-D <str>|--divider <str>] [-f|--show-friendly] [-h|--help]\n          [-n|--show-name-raw] [-P|--no-pretty] [-s|--sort] [-S|--sort-reverse]\n          [-t|--tab-padding] [-v|--version] [-V|--version-only]\n\nlscom.exe [/?] [/ShowAll] [/ShowDevice] [/Divider <str>] [/ShowFriendly]\n          [/ShowName] [/NoPretty] [/Sort] [/SortReverse] [/TabPadding]\n          [/Version]\n\nOptions:\n  -h, --help, /?                      Displays this help text.\n  -a, --show-all, /ShowAll            Displays all the port's names.\n                                       Equivalent to using `-dfn`.\n  -d, --show-device, /ShowDevice      Displays the port's device name.\n  -D, --divider, /Divider <str>       Uses the given string as a separator.\n  -f, --show-friendly, /ShowFriendly  Displays the port's friendly name.\n  -n, --show-name, /ShowName          Displays the port's raw name. (Default)\n  -P, --no-pretty, /NoPretty          Disables the pretty printing format\n                                       Equivalent to using `-D " "`.\n  -s, --sort, /Sort                   Sorts the port based on their raw names\n                                       in an ascending order\n  -S, --sort-reverse, /SortReverse    Sorts the port based on their raw names\n                                       in an descending order\n  -t, --tab-padding, /TabPadding      Use tabs as a separator (Overrides `-D`)\n  -v, --version, /Version             Prints the program's version number"
+  1010, "\nError Codes:\n  Fatal errors: (1-9)\n   * 1  - Failed to open terminal\n  Launch arguments errors: (10-29)\n   * 13 - Malfored launch argument\n   * 14 - Unknown launch argument\n   * 15 - Short launch argument with value is before another one\n   * 20 - No value can be found for the `-D` argument\n  Application errors: (30-39)\n   * 30 - No COM port could be found\n   * 31 - No friendly name could be found"
+  1020, "\nFormatting:\n  +-------------------------+----------------------------------------------+"
+  1021, "  | Options                 | Output                                       |"
+  1022, "  +-------------------------+----------------------------------------------+"
+  1023, "  | *Nothing* or `-n`       | COM1                                         |"
+  1024, "  | `-d`                    | \\Device\\Serial1                              |\n  | `-f`                    | Communications Port                          |\n  | `-df`                   | Communications Port [\\Device\\Serial1]        |\n  | `-nd`                   | COM1 [\\Device\\Serial1]                       |\n  | `-nf`                   | COM1 - Communications Port                   |\n  | `-ndf` / `-a`           | COM1 - Communications Port [\\Device\\Serial1] |\n  | `-ndfp` / `-ap`         | COM1 Communications Port \\Device\\Serial1     |\n  | `-ndfD \";\"` / `-aD \";\"` | COM1;Communications Port;\\Device\\Serial1     |\n  +-------------------------+----------------------------------------------+"
   2000, "\nPress any key to continue..."
-  3010, "I only exist in english"
-  5000, "More than one input file was given !"
-  5001, "Unknown argument:"
-  5002, "No input file given !"
+  5000, "Malfored argument: '{0}'"
+  5001, "Unknown argument: '{0}'"
+  5002, "No COM port could be found !"
+  5003, "No friendly name could be found !"
+  5004, "No value can be found for the `-D` argument !"
+  5005, "Short launch argument with value is before another one: '{0}'"
 END
 
 LANGUAGE LANG_FRENCH, SUBLANG_NEUTRAL
 STRINGTABLE
 BEGIN
-  1000, "MyApp.exe [/?]\n\nOptions:\n  /?  Affiche ce texte d'aide"
-  1001, "\nRemarques:\n  Ceci est un projet modèle !"
+  1000, "lscom.exe [-h|--help][-a|--show-all] [-d|--show-device]\n          [-D <str>|--divider <str>] [-f|--show-friendly] [-h|--help]\n          [-n|--show-name-raw] [-P|--no-pretty] [-s|--sort] [-S|--sort-reverse]\n          [-t|--tab-padding] [-v|--version] [-V|--version-only]\n\nlscom.exe [/?] [/ShowAll] [/ShowDevice] [/Divider <str>] [/ShowFriendly]\n          [/ShowName] [/NoPretty] [/Sort] [/SortReverse] [/TabPadding]\n          [/Version]\n\nOptions:\n  -h, --help, /?                      Affiche ce texte d'aide.\n  -a, --show-all, /ShowAll            Affiche le nom complet du port.\n                                       Équivalent à `-dfn`.\n  -d, --show-device, /ShowDevice      Affiche le nom d'appareil du port.\n  -D, --divider, /Divider <str>       Texte à utiliser comme séparateur.\n  -f, --show-friendly, /ShowFriendly  Affiche le nom familier du port.\n  -n, --show-name, /ShowName          Affiche le nom brut des ports. (Défaut)\n  -P, --no-pretty, /NoPretty          Désactive le format d'impression propre.\n                                       Équivalent à `-D " "`.\n  -s, --sort, /Sort                   Trie les ports par ordre alphabétique\n                                       selon leur nom brut.\n  -S, --sort-reverse, /SortReverse    Trie les ports par ordre alphabétique\n                                       inversé selon leur nom brut.\n  -t, --tab-padding, /TabPadding      Utilise une tabulation comme séparateur.\n                                       Écrase la valeur de `-D`.\n  -v, --version, /Version             Affiche le numéro de version."
+  1010, "\nCodes d'erreur:\n  Erreurs fatales: (1-9)\n   * 1  - Ouverture du terminal impossible\n  Erreurs options de lancement: (10-29)\n   * 13 - Option de lancement malformée\n   * 14 - Option de lancement inconnue\n   * 15 - Option de lancement courte avec valeur est devant une autre\n   * 20 - Aucune valeur trouvée pour l'option `-D`\n  Erreurs applicatives: (30-39)\n   * 30 - Aucun port COM n'a pu être trouvé\n   * 31 - Aucun nom familier n'a pu être trouvé"
+  1020, "\nMise en forme:\n  +------------------------------------------------------------------------+"
+  1021, "  | Options                 | Texte affiché                                |"
+  1023, "  | Rien or `-n`            | COM1                                         |"
   2000, "\nAppuyez sur une touche pour continuer..."
-  3020, "J'existe seulement en français"
-  5000, "Vous avez renseigné plus qu'un seul fichier !"
-  5001, "Option inconnue:"
-  5002, "Aucun fichier n'a été renseigné !"
+  5000, "Option de lancement malformée: '{0}'"
+  5001, "Option de lancement inconnue: '{0}'"
+  5002, "Aucun port COM n'a pu être trouvé !"
+  5003, "Aucun nom familier n'a pu être trouvé !"
+  5004, "Aucune valeur n'existe pour l'argument '-D' !"
+  5005, "Option de lancement courte avec valeur est devant une autre: '{0}'"
 END
 
 // This is added after all the MessageTable

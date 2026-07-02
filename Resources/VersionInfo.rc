@@ -1,1 +1,135 @@
+// Documentation:
+// * https://docs.microsoft.com/en-us/windows/win32/api/verrsrc/ns-verrsrc-vs_fixedfileinfo
+// * https://learn.microsoft.com/en-us/windows/win32/menurc/versioninfo-resource
 
+// File Flags
+#if !defined(VS_FF_DEBUG)
+	#define VS_FF_DEBUG	0x00000001L
+#endif
+#if !defined(VS_FF_PRERELEASE)
+	#define VS_FF_PRERELEASE	0x00000002L
+#endif
+#if !defined(VS_FF_PATCHED)
+	#define VS_FF_PATCHED	0x00000004L
+#endif
+#if !defined(VS_FF_PRIVATEBUILD)
+	#define VS_FF_PRIVATEBUILD	0x00000008L
+#endif
+#if !defined(VS_FF_INFOINFERRED)
+	#define VS_FF_INFOINFERRED	0x00000010L
+#endif
+#if !defined(VS_FF_SPECIALBUILD)
+	#define VS_FF_SPECIALBUILD	0x00000020L
+#endif
+
+// File OS
+#if !defined(VOS_UNKNOWN)
+	#define VOS_UNKNOWN	0x00000000L
+#endif
+#if !defined(VOS_DOS)
+	#define VOS_DOS	0x00010000L
+#endif
+#if !defined(VOS_OS216)
+	#define VOS_OS216	0x00020000L
+#endif
+#if !defined(VOS_OS232)
+	#define VOS_OS232	0x00030000L
+#endif
+#if !defined(VOS_NT)
+	#define VOS_NT	0x00040000L
+#endif
+#if !defined(VOS_WINCE)
+	#define VOS_WINCE	0x00050000L
+#endif
+
+#if !defined(VOS__BASE)
+	#define VOS__BASE	0x00000000L
+#endif
+#if !defined(VOS__WINDOWS16)
+	#define VOS__WINDOWS16	0x00000001L
+#endif
+#if !defined(VOS__PM16)
+	#define VOS__PM16	0x00000002L
+#endif
+#if !defined(VOS__PM32)
+	#define VOS__PM32	0x00000003L
+#endif
+#if !defined(VOS__WINDOWS32)
+	#define VOS__WINDOWS32	0x00000004L
+#endif
+
+#if !defined(VOS_DOS_WINDOWS16)
+	#define VOS_DOS_WINDOWS16	0x00010001L
+#endif
+#if !defined(VOS_DOS_WINDOWS32)
+	#define VOS_DOS_WINDOWS32	0x00010004L
+#endif
+#if !defined(VOS_OS216_PM16)
+	#define VOS_OS216_PM16	0x00020002L
+#endif
+#if !defined(VOS_OS232_PM32)
+	#define VOS_OS232_PM32	0x00030003L
+#endif
+#if !defined(VOS_NT_WINDOWS32)
+	#define VOS_NT_WINDOWS32	0x00040004L
+#endif
+
+// File type
+#if !defined(VFT_UNKNOWN)
+	#define VFT_UNKNOWN	0x00000000L
+#endif
+#if !defined(VFT_APP)
+	#define VFT_APP	0x00000001L
+#endif
+#if !defined(VFT_DLL)
+	#define VFT_DLL	0x00000002L
+#endif
+#if !defined(VFT_DRV)
+	#define VFT_DRV	0x00000003L
+#endif
+#if !defined(VFT_FONT)
+	#define VFT_FONT	0x00000004L
+#endif
+#if !defined(VFT_VXD)
+	#define VFT_VXD	0x00000005L
+#endif
+#if !defined(VFT_STATIC_LIB)
+	#define VFT_STATIC_LIB	0x00000007L
+#endif
+
+// Relative to the .pb/.pbp file
+IDI_ICON1 ICON ".\\Resources\\Icons\\lscom-v2-text-01.ico"
+
+1 VERSIONINFO
+	FILEVERSION 4,0,0,0
+	PRODUCTVERSION 4,0,0,0
+	//FILEFLAGSMASK 0x3fL
+	//FILEFLAGS 0x0L
+	FILEOS VOS_NT_WINDOWS32
+	FILETYPE VFT_APP
+	//FILESUBTYPE 0x0L
+	
+	BEGIN
+		BLOCK "StringFileInfo"
+		BEGIN
+			BLOCK "000004b0"
+			BEGIN
+				//VALUE "Comments", "\0"
+				VALUE "CompanyName", "NibblePoker\0"
+				VALUE "FileDescription", "ListComPort CLI Utility\0"
+				VALUE "FileVersion", "4.0.0.0\0"
+				VALUE "InternalName", "PB-ListComPort\0"
+				VALUE "LegalCopyright", "Copyright (C) 2021-2026\0"
+				//VALUE "LegalTrademarks", "\0"
+				VALUE "OriginalFilename", "lscom.exe\0"
+				//VALUE "PrivateBuild", "\0"
+				VALUE "ProductName", "ListComPort\0"
+				VALUE "ProductVersion", "4.0.0.0\0"
+				//VALUE "SpecialBuild", "\0"
+			END
+		END
+		BLOCK "VarFileInfo"
+		BEGIN
+			VALUE "Translation", 0x0000, 0x4b0
+		END
+	END

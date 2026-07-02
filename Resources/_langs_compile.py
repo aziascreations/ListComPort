@@ -86,13 +86,17 @@ def main():
         rc_lines.append("END")
         rc_lines.append("")
 
+    final_text = rc_prefix + "\n" + "\n" + "\n".join(rc_lines) + rc_suffix + "\n"
+    try:
+        final_text.encode("cp1252")
+    except UnicodeEncodeError as e:
+        print(repr(final_text[e.start:e.end]), hex(ord(final_text[e.start])))
+    #final_text = final_text.replace("\\", "\\\\")
+    #final_text = final_text.replace("\\\\\\\\", "\\\\")
+    #final_text = final_text.replace("\\\\\\", "\\\\")
+    
     with open("StringTables.rc", "w", encoding="cp1252") as f:
-        f.write(rc_prefix)
-        f.write("\n")
-        f.write("\n")
-        f.write("\n".join(rc_lines))
-        f.write(rc_suffix)
-        f.write("\n")
+        f.write(final_text)
 
     print("Written: StringTables.rc")
     print("")

@@ -12,11 +12,8 @@
 ;  License: Unlicense
 ;}
 
-;- Notes
 
-; No notes currently available.
-
-
+; ------------------------------------------------------------------------------
 ;- Compiler Directives
 
 EnableExplicit
@@ -28,6 +25,8 @@ CompilerIf Not #PB_Compiler_OS = #PB_OS_Windows
 CompilerEndIf
 
 
+
+; ------------------------------------------------------------------------------
 ;- Module Declaration
 
 DeclareModule RegistryHelper
@@ -133,6 +132,8 @@ DeclareModule RegistryHelper
 EndDeclareModule
 
 
+
+; ------------------------------------------------------------------------------
 ;- Module Definition
 
 Module RegistryHelper

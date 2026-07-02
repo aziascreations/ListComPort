@@ -15,11 +15,15 @@
 ;  License: Unlicense
 ;}
 
+
+; ------------------------------------------------------------------------------
 ;- Compiler Options
 
 EnableExplicit
 
 
+
+; ------------------------------------------------------------------------------
 ;- Module Declaration
 
 DeclareModule WinTypes
@@ -133,15 +137,10 @@ DeclareModule WinTypes
 EndDeclareModule
 
 
+
+; ------------------------------------------------------------------------------
 ;- Module Definition
 
 Module WinTypes
 	; Nothing...
 EndModule
-
-; IDE Options = PureBasic 5.73 LTS (Windows - x64)
-; CursorPosition = 28
-; FirstLine = 6
-; Folding = --------------
-; EnableXP
-; DPIAware

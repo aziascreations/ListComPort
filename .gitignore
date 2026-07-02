@@ -1,6 +1,45 @@
-*.url
-*.cfg
+# This file excludes the most common trash files you shouldn't commit.
+# Incorporates entries from: https://github.com/fantaisie-software/purebasic/blob/devel/.gitignore
+
+# IDEs
+.vs/
+.idea/
+
+# Derivated intermediates
+Resources/StringTables.rc
+
+# Build Artifacts
+*.dll
 *.exe
-*.txt
-*.lnk
+*.lib
+*.pdb
+*.app
+*.dylib
+*.out
+*.so
+
+# Trash
+*.cfg
+*.patch
+*.diff
+*.url
 Trash/
+
+# OS Trash
+$RECYCLE.BIN/
+*.stackdump
+*~
+._*
+.AppleDouble
+.directory
+.DS_Store
+.fuse_hidden*
+.LSOverride
+.nfs*
+.Trash-*
+[Dd]esktop.ini
+ehthumbs.db
+ehthumbs_vista.db
+Icon
+Thumbs.db
+Thumbs.db:encryptable

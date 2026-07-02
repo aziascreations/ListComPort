@@ -5,34 +5,80 @@
 	"": "################################################################################",
 	
 	"1000": [
-		"lscom.exe [-a|--show-all] [-d|--show-device] [-D <str>|--divider <str>]",
-		"          [-f|--show-friendly] [-h|--help] [-n|--show-name-raw] [-P|--no-pretty]",
-		"          [-s|--sort] [-S|--sort-reverse] [-t|--tab-padding] [-v|--version] [-V|--version-only]",
+		"lscom.exe [-h|--help][-a|--show-all] [-d|--show-device]",
+		"          [-D <str>|--divider <str>] [-f|--show-friendly] [-h|--help]",
+		"          [-n|--show-name-raw] [-P|--no-pretty] [-s|--sort] [-S|--sort-reverse]",
+		"          [-t|--tab-padding] [-v|--version] [-V|--version-only]",
+		"",
+		"lscom.exe [/?] [/ShowAll] [/ShowDevice] [/Divider <str>] [/ShowFriendly]",
+		"          [/ShowName] [/NoPretty] [/Sort] [/SortReverse] [/TabPadding]",
+		"          [/Version]",
 		"",
 		"Options:",
-		"  -a, --show-all             Display the complete port's name (Equal to '-dfn')",
-		"  -d, --show-device          Displays the port's device name",
-		"  -D <str>, --divider <str>  Uses the given string or char as a separator (Can be empty string !)",
-		"  -f, --show-friendly        Displays the port's friendly name",
-		"  /?, -h, --help                 Display this help text",
-		"  -n, --show-name-raw        Displays the port's raw name (See remarks section)",
-		"  -P, --no-pretty            Disables the pretty printing format (Equal to -D " ")",
-		"  -s, --sort                 Sorts the port based on their raw names in an ascending order",
-		"  -S, --sort-reverse         Sorts the port based on their raw names in a descending order",
-		"  -t, --tab-padding          Use tabs for padding between the types of names (Overrides '-D')",
-		"  -v, --version              Prints the program's version number"
+		"  -h, --help, /?                      Displays this help text.",
+		"  -a, --show-all, /ShowAll            Displays all the port's names.",
+		"                                       Equivalent to using `-dfn`.",
+		"  -d, --show-device, /ShowDevice      Displays the port's device name.",
+		"  -D, --divider, /Divider <str>       Uses the given string as a separator.",
+		"  -f, --show-friendly, /ShowFriendly  Displays the port's friendly name.",
+		"  -n, --show-name, /ShowName          Displays the port's raw name. (Default)",
+		"  -P, --no-pretty, /NoPretty          Disables the pretty printing format",
+		"                                       Equivalent to using `-D \" \"`.",
+		"  -s, --sort, /Sort                   Sorts the port based on their raw names",
+		"                                       in an ascending order",
+		"  -S, --sort-reverse, /SortReverse    Sorts the port based on their raw names",
+		"                                       in an descending order",
+		"  -t, --tab-padding, /TabPadding      Use tabs as a separator (Overrides `-D`)",
+		"  -v, --version, /Version             Prints the program's version number"
 	],
-	"1001": [
+	
+	"1010": [
 		"",
-		"Remarks:",
-		"  This is only a template project !"
+		"Error Codes:",
+		"  Fatal errors: (1-9)",
+		"   * 1  - Failed to open terminal",
+		"  Launch arguments errors: (10-29)",
+		"   * 13 - Malfored launch argument",
+		"   * 14 - Unknown launch argument",
+		"   * 15 - Short launch argument with value is before another one",
+		"   * 20 - No value can be found for the `-D` argument",
+		"  Application errors: (30-39)",
+		"   * 30 - No COM port could be found",
+		"   * 31 - No friendly name could be found"
+	],
+	
+	"1020": [
+		"",
+		"Formatting:",
+		"  +-------------------------+----------------------------------------------+"
+	],
+	"1021": [
+		"  | Options                 | Output                                       |"
+	],
+	"1022": [
+		"  +-------------------------+----------------------------------------------+"
+	],
+	"1023": [
+		"  | *Nothing* or `-n`       | COM1                                         |"
+	],
+	"1024": [
+		"  | `-d`                    | \\\\Device\\\\Serial1                              |",
+		"  | `-f`                    | Communications Port                          |",
+		"  | `-df`                   | Communications Port [\\\\Device\\\\Serial1]        |",
+		"  | `-nd`                   | COM1 [\\\\Device\\\\Serial1]                       |",
+		"  | `-nf`                   | COM1 - Communications Port                   |",
+		"  | `-ndf` / `-a`           | COM1 - Communications Port [\\\\Device\\\\Serial1] |",
+		"  | `-ndfp` / `-ap`         | COM1 Communications Port \\\\Device\\\\Serial1     |",
+		"  | `-ndfD \\\";\\\"` / `-aD \\\";\\\"` | COM1;Communications Port;\\\\Device\\\\Serial1     |",
+		"  +-------------------------+----------------------------------------------+"
 	],
 	
 	"2000": "\\nPress any key to continue...",
 	
-	"3010": "I only exist in english",
-	
-	"5000": "More than one input file was given !",
-	"5001": "Unknown argument:",
-	"5002": "No input file given !"
+	"5000": "Malfored argument: '{0}'",
+	"5001": "Unknown argument: '{0}'",
+	"5002": "No COM port could be found !",
+	"5003": "No friendly name could be found !",
+	"5004": "No value can be found for the `-D` argument !",
+	"5005": "Short launch argument with value is before another one: '{0}'"
 }

@@ -5,22 +5,67 @@
 	"": "################################################################################",
 	
 	"1000": [
-		"MyApp.exe [/?]",
+		"lscom.exe [-h|--help][-a|--show-all] [-d|--show-device]",
+		"          [-D <str>|--divider <str>] [-f|--show-friendly] [-h|--help]",
+		"          [-n|--show-name-raw] [-P|--no-pretty] [-s|--sort] [-S|--sort-reverse]",
+		"          [-t|--tab-padding] [-v|--version] [-V|--version-only]",
+		"",
+		"lscom.exe [/?] [/ShowAll] [/ShowDevice] [/Divider <str>] [/ShowFriendly]",
+		"          [/ShowName] [/NoPretty] [/Sort] [/SortReverse] [/TabPadding]",
+		"          [/Version]",
 		"",
 		"Options:",
-		"  /?  Affiche ce texte d'aide"
+		"  -h, --help, /?                      Affiche ce texte d'aide.",
+		"  -a, --show-all, /ShowAll            Affiche le nom complet du port.",
+		"                                       Équivalent à `-dfn`.",
+		"  -d, --show-device, /ShowDevice      Affiche le nom d'appareil du port.",
+		"  -D, --divider, /Divider <str>       Texte à utiliser comme séparateur.",
+		"  -f, --show-friendly, /ShowFriendly  Affiche le nom familier du port.",
+		"  -n, --show-name, /ShowName          Affiche le nom brut des ports. (Défaut)",
+		"  -P, --no-pretty, /NoPretty          Désactive le format d'impression propre.",
+		"                                       Équivalent à `-D \" \"`.",
+		"  -s, --sort, /Sort                   Trie les ports par ordre alphabétique",
+		"                                       selon leur nom brut.",
+		"  -S, --sort-reverse, /SortReverse    Trie les ports par ordre alphabétique",
+		"                                       inversé selon leur nom brut.",
+		"  -t, --tab-padding, /TabPadding      Utilise une tabulation comme séparateur.",
+		"                                       Écrase la valeur de `-D`.",
+		"  -v, --version, /Version             Affiche le numéro de version."
 	],
-	"1001": [
+	
+	"1010": [
 		"",
-		"Remarques:",
-		"  Ceci est un projet modèle !"
+		"Codes d'erreur:",
+		"  Erreurs fatales: (1-9)",
+		"   * 1  - Ouverture du terminal impossible",
+		"  Erreurs options de lancement: (10-29)",
+		"   * 13 - Option de lancement malformée",
+		"   * 14 - Option de lancement inconnue",
+		"   * 15 - Option de lancement courte avec valeur est devant une autre",
+		"   * 20 - Aucune valeur trouvée pour l'option `-D`",
+		"  Erreurs applicatives: (30-39)",
+		"   * 30 - Aucun port COM n'a pu être trouvé",
+		"   * 31 - Aucun nom familier n'a pu être trouvé"
+	],
+	
+	"1020": [
+		"",
+		"Mise en forme:",
+		"  +------------------------------------------------------------------------+"
+	],
+	"1021": [
+		"  | Options                 | Texte affiché                                |"
+	],
+	"1023": [
+		"  | Rien or `-n`            | COM1                                         |"
 	],
 	
 	"2000": "\\nAppuyez sur une touche pour continuer...",
-
-	"3020": "J'existe seulement en français",
 	
-	"5000": "Vous avez renseigné plus qu'un seul fichier !",
-	"5001": "Option inconnue:",
-	"5002": "Aucun fichier n'a été renseigné !"
+	"5000": "Option de lancement malformée: '{0}'",
+	"5001": "Option de lancement inconnue: '{0}'",
+	"5002": "Aucun port COM n'a pu être trouvé !",
+	"5003": "Aucun nom familier n'a pu être trouvé !",
+	"5004": "Aucune valeur n'existe pour l'argument '-D' !",
+	"5005": "Option de lancement courte avec valeur est devant une autre: '{0}'"
 }
