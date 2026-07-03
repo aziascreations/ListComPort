@@ -1,7 +1,7 @@
 ﻿;{- Code Header
 ; ==- Basic Info -================================
 ;         Name: RegistryHelper.pbi
-;      Version: 1.0.0
+;      Version: 1.0.1
 ;       Author: Herwin Bozet
 ;
 ; ==- Compatibility -=============================
@@ -34,44 +34,9 @@ DeclareModule RegistryHelper
 	
 	#Version_Major = 1
 	#Version_Minor = 0
-	#Version_Patch = 0
+	#Version_Patch = 1
 	#Version_Label$ = ""
-	#Version$ = "1.0.0";+"-"+#Version_Label$
-	
-	
-	;-> Library Imports
-	
-	;{ RegGetValueW Import & loading (Unused due to errors)
-	; Does not work on x64, even if the signature used for the library loading is the same...
-	; 	CompilerIf #PB_Compiler_Processor = #PB_Processor_x86
-	; 		#ADVAPILIB_PATH$ = "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\x86\AdvAPI32.Lib"
-	; 		#ADVAPILIB_SYMBOL$ = "_RegGetValueW@28"
-	; 	CompilerElseIf #PB_Compiler_Processor = #PB_Processor_x64
-	; 		#ADVAPILIB_PATH$ = "C:\Program Files (x86)\Windows Kits\10\Lib\10.0.19041.0\um\arm64\AdvAPI32.Lib"
-	; 		#ADVAPILIB_SYMBOL$ = "RegGetValueW"
-	; 	CompilerElse
-	; 		CompilerError "Unable to compile for the current architecture !"
-	; 	CompilerEndIf
-	; 	
-	; 	Import #ADVAPILIB_PATH$
-	; 		RegGetValueW_.WinTypes::LSTATUS(hkey.WinTypes::HKEY, lpSubKey.WinTypes::LPCWSTR, lpValue.WinTypes::LPCWSTR,
-	; 		                                dwFlags.WinTypes::DWORD, pdwType.WinTypes::LPDWORD, pvData.WinTypes::PVOID,
-	; 		                                pcbData.WinTypes::LPDWORD) As #ADVAPILIB_SYMBOL$
-	; 	EndImport
-	
-	; Works perfectly fine but requires extra cleaning steps
-	; 	Prototype.i _RegGetValueW(hKey.l, lpSubKey.s, lpValue.s, dwFlags.l, *pdwType, *pvData, *pcbData)
-	; 	
-	; 	Global LibrariIdAdvapi32 = OpenLibrary(#PB_Any, "Advapi32.dll")
-	; 	
-	; 	If IsLibrary(LibrariIdAdvapi32)
-	; 		RegGetValueW = GetFunction(LibrariIdAdvapi32, "RegGetValueW")
-	; 	EndIf
-	; 	
-	; 	If Not RegGetValueW
-	; 		ConsoleError("Failed to open Advapi32.dll !")
-	; 	EndIf
-	;}
+	#Version$ = "1.0.1";+"-"+#Version_Label$
 	
 	
 	;-> Constants
@@ -282,6 +247,7 @@ Module RegistryHelper
 		ProcedureReturn _GetSubKeys(DetectRootKey(SubKey$), TrimRootKey(SubKey$), SubKeys(), PrependRootKey, PrependSubKey)
 	EndProcedure
 	
+	
 	Procedure.i _GetKeyValuePairAsLists(RootKey, SubKey$, List ValueNames.s(), List Values.s())
 		Protected RegistryHandle.WinTypes::HKEY = _OpenReadingKey(RootKey, SubKey$)
 		
@@ -299,6 +265,7 @@ Module RegistryHelper
 			ProcedureReturn -1
 		EndIf
 		
+		; NOTE: Allocates a lot of RAM, but it only does so once !
 		Protected *ValueDataBuffer = AllocateMemory(#Size_ValueData_Standard)
 		Protected ValueDataSize.i = #Size_ValueData_Standard
 		
@@ -348,6 +315,7 @@ Module RegistryHelper
 		ProcedureReturn _GetKeyValuePairAsLists(DetectRootKey(SubKey$), TrimRootKey(SubKey$), ValueNames(), Values())
 	EndProcedure
 	
+	
 	Procedure.i _GetKeyValuePairAsMap(RootKey, SubKey$, Map ValueNamePair.s())
 		Protected RegistryHandle.WinTypes::HKEY = _OpenReadingKey(RootKey, SubKey$)
 		
@@ -365,6 +333,7 @@ Module RegistryHelper
 			ProcedureReturn -1
 		EndIf
 		
+		; NOTE: Allocates a lot of RAM, but it only does so once !
 		Protected *ValueDataBuffer = AllocateMemory(#Size_ValueData_Standard)
 		Protected ValueDataSize.i = #Size_ValueData_Standard
 		
@@ -446,8 +415,11 @@ Module RegistryHelper
 			ProcedureReturn #Null$
 		EndIf
 		
-		Protected *ValueDataBuffer = AllocateMemory(#Size_ValueData_Standard)
-		Protected ValueDataSize.i = #Size_ValueData_Standard
+		; Getting the actual size instead of allocating 1M directly (#Size_ValueData_Standard)
+		Protected NeededSize.i = 0
+		RegQueryValueEx_(RegistryHandle, ValueName$, #Null, @DataType, #Null, @NeededSize)
+		
+		Protected *ValueDataBuffer = AllocateMemory(NeededSize + 1)
 		
 		If Not *ValueDataBuffer
 			DebuggerError("Failed to allocate memory !")
@@ -456,8 +428,8 @@ Module RegistryHelper
 			ProcedureReturn #Null$
 		EndIf
 		
-		If RegQueryValueEx_(RegistryHandle, ValueName$, #Null, @DataType, *ValueDataBuffer, @ValueDataSize) = #ERROR_SUCCESS
-			ReturnValue = PeekS(*ValueDataBuffer, ValueDataSize)
+		If RegQueryValueEx_(RegistryHandle, ValueName$, #Null, @DataType, *ValueDataBuffer, @NeededSize) = #ERROR_SUCCESS
+			ReturnValue = PeekS(*ValueDataBuffer, NeededSize + 1)
 		EndIf
 		
 		FreeMemory(*ValueDataBuffer)
