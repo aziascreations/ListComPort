@@ -21,7 +21,7 @@ The latest releases can be found here: "*[Release page](https://github.com/azias
 * Supports Windows XP x86/x64 or newer
 * Small footprint:
   * HDD: &lt; 100 KiB
-  * RAM: ~10 KiB
+  * ~~RAM: ~10 KiB~~ (Investigating issues on this)
 
 
 ## Usage

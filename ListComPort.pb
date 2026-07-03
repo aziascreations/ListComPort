@@ -389,7 +389,7 @@ EndIf
 
 
 ;-> Listing ports
-
+; FIXME: Consumes a full megabyte for 3 ports !!! - WTF
 If ComPortHelper::GetComPortAndDeviceNameLists(ComPortDeviceNames(), ComPortRawNames()) <> -1
 	If ShouldPrintFriendlyNames
 		If ComPortHelper::GetComPortMappedFriendlyName(ComPortRawNames(), ComPortFriendlyNames(), #True) = -1
