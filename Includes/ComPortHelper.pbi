@@ -12,11 +12,8 @@
 ;  License: Unlicense
 ;}
 
-;- Notes
 
-; No notes currently available.
-
-
+; ------------------------------------------------------------------------------
 ;- Compiler Directives
 
 EnableExplicit
@@ -27,7 +24,11 @@ CompilerIf Not #PB_Compiler_OS = #PB_OS_Windows
 	CompilerError "Includes is intended to be used on Windows platforms only !"
 CompilerEndIf
 
+XIncludeFile "./Debug_PrivateMemUsage.pbi"
 
+
+
+; ------------------------------------------------------------------------------
 ;- Module Declaration
 
 DeclareModule ComPortHelper
@@ -87,6 +88,8 @@ DeclareModule ComPortHelper
 EndDeclareModule
 
 
+
+; ------------------------------------------------------------------------------
 ;- Module Definition
 
 Module ComPortHelper
@@ -211,3 +214,68 @@ Module ComPortHelper
 		EndIf
 	EndProcedure
 EndModule
+
+
+
+; ------------------------------------------------------------------------------
+;- Tests
+CompilerIf #PB_Compiler_IsMainFile
+    EnableExplicit
+    
+    Global NewList ComPortDeviceNames.s()
+    Global NewList ComPortRawNames.s()
+    Global NewMap ComPortFriendlyNames.s()
+    
+    Global ShouldPrintFriendlyNames = #False
+    
+    OpenConsole()
+    
+    Debug "Pre-baseline"
+    CheckPrivateBytes()
+    
+    SetBaselinePrivateBytes()
+    
+    Debug "Post-Baseline"
+    CheckPrivateBytes()
+    
+    
+    Debug "Listing COM Ports"
+    If ComPortHelper::GetComPortAndDeviceNameLists(ComPortDeviceNames(), ComPortRawNames()) <> -1
+        CheckPrivateBytes()
+        
+        If ShouldPrintFriendlyNames
+            
+            Debug "Listing Friendly names"
+            
+            If ComPortHelper::GetComPortMappedFriendlyName(ComPortRawNames(), ComPortFriendlyNames(), #True) = -1
+                CheckPrivateBytes()
+                Debug "#LSCOM_Locale_Error_NoFriendlyNames"
+                PrintN("#LSCOM_Locale_Error_NoFriendlyNames")
+                Goto ComPortHelper_End
+            EndIf
+    	EndIf
+    Else
+        CheckPrivateBytes()
+        
+        Debug "#LSCOM_Locale_Error_NoComPorts"
+        PrintN("#LSCOM_Locale_Error_NoComPorts")
+        Goto ComPortHelper_End
+    EndIf
+    
+    Debug "Exited COM Ports Listing If/Else block"
+    CheckPrivateBytes()
+    
+    Debug "Cleaning lists and maps"
+	FreeMap(ComPortFriendlyNames())
+	FreeList(ComPortRawNames())
+	FreeList(ComPortDeviceNames())
+    CheckPrivateBytes()
+    
+    
+	ComPortHelper_End:
+    Debug "Exiting"
+	CheckPrivateBytes()
+	PrintPrivateBytesStats()
+	
+    Input()
+CompilerEndIf

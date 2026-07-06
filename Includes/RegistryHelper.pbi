@@ -106,6 +106,11 @@ Module RegistryHelper
 	
 	EnableExplicit
 	
+	; Temp
+	ImportC "msvcrt.lib"
+	    _msize(*ptr) As "_msize"
+	EndImport
+	
 	
 	;-> Procedure Definition
 	
@@ -295,6 +300,14 @@ Module RegistryHelper
 				Break
 			Else ; Implies #ERROR_SUCCESS or #ERROR_MORE_DATA
 				Debug "> "+PeekS(*ValueNameBuffer, #Size_ValueName)+" #> "+PeekS(*ValueDataBuffer, #Size_ValueData_Standard)
+				
+				Debug "REEEEE:"
+				Debug MemorySize(*ValueNameBuffer)
+				Debug MemorySize(*ValueDataBuffer)
+				Protected Test1.s = PeekS(*ValueNameBuffer, #Size_ValueName)
+				Debug _msize(*ValueNameBuffer)
+				Debug _msize(*ValueDataBuffer)
+				Debug _msize(@Test1)
 				
 				AddElement(ValueNames())
 				ValueNames() = PeekS(*ValueNameBuffer, #Size_ValueName)
