@@ -9,7 +9,6 @@ A slightly outdated .NET Core port of this utility can be found at
 
 The latest releases can be found here: "*[Release page](https://github.com/aziascreations/ListComPort/releases)*"
 
-
 > [!NOTE]
 > This is utility is in low maintenance mode. \
 > I consider it feature-complete, and don't plan on updating it unless a language is added, or a bug is found.
